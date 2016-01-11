@@ -1,0 +1,585 @@
+/*针对谷歌浏览器内核支持的CSS样式*/
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+
+样式
+
+}
+
+/*针对IE6特制识别的CSS样式*/
+*HTML .SearchBox
+{
+
+样式
+
+}
+
+针对Firefox浏览器的内核CSS写法：
+@-moz-document url-prefix() {
+.font1 {color:red}
+}
+
+IE8就是自己来调试了。调试一个浏览器，有不合适的地方可以在该内核css中重写对应的方法，只需把不合适的样式重写即可实现。*HTML中则例外，需要每重写一个都要加*HTML单独处理。
+针对样式名
+
+如果只让ie6看见用*html .head{color:#000;}
+如果只让ie7看见用*+html .head{color:#000;}
+如果只让ff看见用:root body .head{color:#000;}
+如果只让ff、IE8看见用html>/**/body .head{color:#000;}
+如果只是不让ie6看见用html>body .head{color:#000;} 即对IE 6无效
+如果只是不让ff、IE8看见用*body .head{color:#000;}   即对ff、IE8无效
+
+针对具体属性
+
+如果只让ie6看见用_    .head{_color:#000;}
+如果只让ie7看见用+与_结合的方法:    .head{+color:#f00;!;_color:#000;}
+
+IE8正式版hack
+
+\9″　例:”margin:0px auto\9;”.这里的”\9″可以区别所有IE8和FireFox.
+“*”　IE6、IE7可以识别.IE8、FireFox不能.
+“_”　IE6可以识别”_”,IE7、IE8、FireFox不能.
+如：
+.a {color:#f00;    color:#f60\9;   +color:#00FF00;   _color:#0000FF; }
+从左到右分别对应 FF,IE8 IE7 IE6
+=============================
+P{+color:#f00;}            支持 IE7 IE6      不支持 FF IE8b
+P{_color:#f00;}            支持ie6         不支持 FF
+P{color:#f00; !important;}    
+P{color:#f00;}            支持 IE6 IE7 IE8b FF
+P{color:#00f !important;color:#f00; }    支持IE7 IE8b FF    不支持IE6
+head:first-child+body p{color:#f00;}   支持IE7 IE8b FF     不支持IE6
+
+/*\*//*/
+/**/               支持IE8b         不支持IE6 IE7 FF
+html*{color:#f00}         支持IE6 IE7       不支持 IE8b FF
+body>p{color:#f00}         支持IE7 IE8b FF      不支持 IE6
+html[xmlns] p {color:#f00}      支持 IE7 IE8b FF   不支持 IE6
+@import "style.css"
+@import "style.css" 
+@import url(style.css)
+@import url('style.css')
+@import url("style.css")      支持 IE6 IE7 IE8b FF
+
+P{/*/*color:#f00;/* */}         支持 IE6 IE7 FF    不支持 IE8b
+
+
+
+
+
+margin-bottom:40px;      /*ff的属性*/
+margin-bottom:140px\9;   /* IE6/7/8的属性 */
+color:red\0;             /* IE8支持 */
+*margin-bottom:450px;    /*IE6/7的属性*/ +margin-bottom:450px;
+_color:#ff0000;        /* 只ie6支持 */
+
+#1 { color: #333; } /* FF环境 */ 
+* html #1 { color: #666; } /* IE6环境 */ 
+*+html #1 { color: #999; } /* IE7环境 */
+================================================================================
+三、CSS hack写法
+   书写顺序为FireFox在最前，其次是IE8、IE7，最后是IE6。    
+      color:red;//所有浏览器
+     color:blue\9;//所有IE
+     +color:orange;//IE7
+     _color:green;//IE6
+   若浏览器为FireFox，那么color:red；若浏览器为IE8，根据CSS优先性原则，color:blue；若为IE7，color:orange；若为IE6，则color:green。
+   IE6识别 * 、_
+   IE7识别 * 、+
+   IE8识别 * 、\9,\0
+   只有IE8识别  \0/    
+
+   ie9只识别：\9
+
+   FF什么都不识别
+
+
+第一招：给常用CSS规定属性值。
+body,div,dl,dt,dd,ol,h1,h2,h3,h4,h5,h6,form,input,p,th,td{margin:0;padding:0;}
+img{border:0px;}
+ul {margin:0px;padding:0px;}/
+ul li {list-style:none;}
+上面的建站常用代码就相是格式化CSS样式，让各浏览器按照我们设置的属性值渲染网页
+第二招：IE和FF下对象居中问题
+IE下大家应该知道只要设置body{text-align:center;}这样就可以居中显示。
+但是这样的方法在FF不行的。这里就需要给修改成body:{text-align:center;margin:0px auto;}Margin的意思就是上下距离为0像素，左右为自动。所以FF就会居
+中显示。
+第三招：垂直居中（仅只用于一行）
+比如说一个高30px的div，问题默认是会显示在左上角，如果想垂直居中对其可以加个line-height:30px;样式。如果你想让他居下方则在修改line-height:30px;
+数值越大越局下，为了防止撑破层，还需要再给一个样式overflow:hidden;(超出的部分不显示)
+第四招：给每一个块对象设置三个样式
+width:**px;height:**px;overflow:hidden;即便高、宽是属性值是自动那么也需要去设置这三个样式。目的就是解决浏览器默认值的问题。
+第五招：针对IE6、IE7、FF的css样式(这一招在特殊情况下经常用到)
+原来建设网站经常使用!important来设置优先权，但有了IE7之后就不行了。下面给大家个可以解决IE6、IE7、FF各个CSS优先权的方法
+#1 { color: #333; } /* FF环境 */ 
+* html #1 { color: #666; } /* IE6环境 */ 
+*+html #1 { color: #999; } /* IE7环境 */ 
+上面的书写顺序一定不能去改变。
+
+6 页面的最小宽度
+
+min-width是个非常方便的CSS命令，它可以指定元素最小也不能小于某个宽度，这样就能保证排版一直正确。但IE不认得这个，
+而它实际上把width当做最小宽度来使。为了让这一命令在IE上也能用，可以把一个<div> 放到 <body> 标签下，然后为div指定一个类：
+然后CSS这样设计：
+
+CSS:
+
+#container{ min-width: 600px; width:expression_r(document.body.clientWidth <600? “600px”: “auto” );}
+第一个min-width是正常的；但第2行的width使用了Javascript，这只有IE才认得，这也会让你的HTML文档不太正规。它实际上通过Javascript的判断来实现最小宽度。
+
+7 清除浮动
+
+CSS:
+
+.hackbox{ display:table; //将对象作为块元素级的表格显示}或者.hackbox{ clear:both;}
+或者加入:after（伪对象）,设置在对象后发生的内容，通常和content配合使用，IE不支持此伪对象，非Ie 浏览器支持，
+所以并不影响到IE/WIN浏览器。这种的最麻烦的……
+
+CSS:
+
+#box:after{ content: “.”; display: block; height: 0; clear: both; visibility: hidden;}
+
+8 DIV浮动IE文本产生3象素的bug
+
+左边对象浮动，右边采用外补丁的左边距来定位，右边对象内的文本会离左边有3px的间距.
+
+CSS:
+
+#box{ float:left; width:800px;}#left{ float:left; width:50%;}#right{ width:50%;}*html #left{ margin-right:-3px; //这句是关键}
+HTML代码<div id=“box”> <div id=“left”></div> <div id=“right”></div></div>
+9 属性选择器(这个不能算是兼容,是隐藏css的一个bug)
+
+CSS:
+
+p[id]{}div[id]{}
+这个对于IE6.0和IE6.0以下的版本都隐藏,FF和OPera作用
+属性选择器和子选择器还是有区别的,子选择器的范围从形式来说缩小了,属性选择器的范围比较大,如p[id]中,所有p标签中有id的都是同样式的.
+
+10 IE捉迷藏的问题
+
+当div应用复杂的时候每个栏中又有一些链接，DIV等这个时候容易发生捉迷藏的问题。
+有些内容显示不出来，当鼠标选择这个区域是发现内容确实在页面。
+解决办法：对#layout使用line-height属性 或者给#layout使用固定高和宽。页面结构尽量简单。
+
+11 高度不适应
+
+高度不适应是当内层对象的高度发生变化时外层高度不能自动进行调节，特别是当内层对象使用
+margin 或paddign 时。
+例：
+
+CSS:
+
+<div id=“box”>
+<p>p对象中的内容</p>
+</div>
+CSS：#box {background-color:#eee; }
+#box p {margin-top: 20px;margin-bottom: 20px; text-align:center; }
+解决方法：在P对象上下各加2个空的div对象CSS代码：.1{height:0px;overflow:hidden;}或者为DIV加上border属性。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DIV＋CSS设计IE6、IE7、FF 兼容性 
+DIV＋CSS网页布局这是一种趋势,我也开始顺应这股趋势了,不过在使用DIV＋CSS网站设计的时候，应该注意css样式兼容不同浏览器问题，特别是对完全使用DIV+CSS设计的网页，就应该更注意IE6 IE7 FF对CSS样式的兼容.
+
+什么是浏览器兼容：当我们使用不同的浏览器（Firefox IE7 IE6）访问同一个网站，或者页面的时候，会出现一些不兼容的问题，在这种浏览器下显示正常，在另一种下就乱了，我们在编写CSS的时候会很恼火，刚修复了这个浏览器的问题，结果另外一个浏览器却出了新问题。
+
+一、!important (功能有限) 
+随着IE7对!important的支持, !important 方法现在只针对IE6的兼容.(注意写法.记得该声明位置需要提前.) 
+例如: 
+
+#example { 
+width: 100px !important; /* IE7+FF */ 
+width: 103px; /* IE6 */ 
+} 
+
+二、CSS HACK的方法
+
+首先需要知道的是： 
+
+所有浏览器 通用 height: 100px; 
+IE6 专用 _height: 100px; 
+IE7 专用 *+height: 100px; 
+IE6、IE7 共用 *height: 100px; 
+IE7、FF 共用 height: 100px !important; 
+
+例如： 
+
+#example { height:100px; } /* FF */ 
+
+* html #example { height:200px; } /* IE6 */ 
+
+*+html #example { height:300px; } /* IE7 */ 
+
+下面的这种方法比较简单 
+
+举几个例子： 
+
+1、IE6 - IE7+FF 
+
+#example { 
+height:100px; /* FF+IE7 */ 
+_height:200px; /* IE6 */ 
+} 
+其实这个用上面说的第一种方法也可以 
+#example { 
+height:100px !important; /* FF+IE7 */ 
+height:200px; /* IE6 */ 
+} 
+
+2、IE6+IE7 - FF 
+
+#example { 
+height:100px; /* FF */ 
+*height:200px; /* IE6+IE7 */ 
+} 
+
+3、IE6+FF - IE7 
+
+#example { 
+height:100px; /* IE6+FF */ 
+*+height:200px; /* IE7 */ 
+} 
+
+4、IE6 IE7 FF 各不相同 
+
+#example { 
+height:100px; /* FF */ 
+_height:200px; /* IE6 */ 
+*+height:300px; /* IE7 */ 
+} 
+或： 
+#example { 
+height:100px; /* FF */ 
+*height:300px; /* IE7 */ 
+_height:200px; /* IE6 */ 
+} 
+
+需要注意的是，代码的顺序一定不能颠倒了，要不又前功尽弃了。因为浏览器在解释程序的时候，如果重名的话，会用后面的覆盖前面的，就象给变量赋值一个道理，所以我们把通用的放前面，越专用的越放后面 
+
+解释一下4的代码： 
+
+读代码的时候，第一行height:100px; 大家都通用，IE6 IE7 FF 都显示100px 
+到了第二行*height:300px; FF不认识这个属性，IE6 IE7都认，所以FF还显示100px，而IE6 IE7把第一行得到的height属性给覆盖了，都显示300px 
+到了第三行_height:200px;只有IE6认识，所以IE6就又覆盖了在第二行得到的height,最终显示200px 
+这样，三个浏览器都有自己的height属性了.
+
+
+*+html 对IE7的兼容 必须保证HTML顶部有如下声明： 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"　"http://www.w3.org/TR/html4/loose.dtd"> 
+
+
+三、使用IE专用的条件注释 
+
+<!--其他浏览器 --> 
+
+<link rel="stylesheet" type="text/css" href="css.css" /> 
+
+<!--[if IE 7]> 
+
+<!-- 适合于IE7 --> 
+
+<link rel="stylesheet" type="text/css" href="ie7.css" /> 
+
+<![endif]--> 
+
+<!--[if lte IE 6]> 
+
+<!-- 适合于IE6及以下 --> 
+
+<link rel="stylesheet" type="text/css" href="ie.css" /> 
+
+<![endif]--> 
+
+IE的if条件Hack 
+
+1. <!--[if !IE]><!--> 除IE外都可识别 <!--<![endif]--> 
+2. <!--[if IE]> 所有的IE可识别 <![endif]--> 
+3. <!--[if IE 5.0]> 只有IE5.0可以识别 <![endif]--> 
+4. <!--[if IE 5]> 仅IE5.0与IE5.5可以识别 <![endif]--> 
+5. <!--[if gt IE 5.0]> IE5.0以及IE5.0以上版本都可以识别 <![endif]--> 
+6. <!--[if IE 6]> 仅IE6可识别 <![endif]--> 
+7. <!--[if lt IE 6]> IE6以及IE6以下版本可识别 <![endif]--> 
+8. <!--[if gte IE 6]> IE6以及IE6以上版本可识别 <![endif]--> 
+9. <!--[if IE 7]> 仅IE7可识别 <![endif]--> 
+10. <!--[if lt IE 7]> IE7以及IE7以下版本可识别 <![endif]--> 
+11. <!--[if gte IE 7]> IE7以及IE7以上版本可识别 <![endif]-->注:gt = Great Then 大于 
+> = > 大于号 
+lt = Less Then 小于 
+< = < 小于号 
+gte = Great Then or Equal 大于或等于 
+lte = Less Then or Equal 小于或等于 
+
+四、css filter的办法
+
+新建一个css样式如下： 
+
+#item { 
+
+width: 200px; 
+
+height: 200px; 
+
+background: red; 
+
+} 
+
+新建一个div,并使用前面定义的css的样式： 
+
+<div >some text here</div> 
+
+在body表现这里加入lang属性,中文为zh： 
+
+<body lang="en"> 
+
+现在对div元素再定义一个样式： 
+
+*:lang(en) #item{ 
+
+background:green !important; 
+
+} 
+
+这样做是为了用!important覆盖原来的css样式,由于:lang选择器ie7.0并不支持,所以对这句话不会有任何作用,于是也达到了ie6.0下同样的效果,但是很不幸地的是,safari同样不支持此属性,所以需要加入以下css样式： 
+
+#item:empty { 
+
+background: green !important； 
+
+} 
+
+:empty选择器为css3的规范,尽管safari并不支持此规范,但是还是会选择此元素,不管是否此元素存在,现在绿色会现在在除ie各版本以外的浏览器上。 
+
+
+五、FLOAT闭合（clearing float） 
+
+　　网页在某些浏览器上显示错位很多时候都是因为使用了float浮动而没有真正闭合，这也是div无法自适应高度的一个原因。如果父div没有设float而其子div却设了float的话,父div无法包住整个子DIV，这种情况一般出现在一个父DIV下包含多个子DIV。解决办法： 
+
+１、给父DIV也设上float
+
+2、在所有子DIV后新加一个空DIV(不推荐，有些浏览器可以看见空DIV产生的空隙) 
+
+比如： 
+
+.parent{width:100px;} 
+.son1{float:left;width:20px;} 
+.son2{float:left;width:80px;} 
+.clear{clear:both;margin:0;parding0;height:0px;font-size:0px;} 
+
+<div class="parent"> 
+<div class="son1"></div> 
+<div class="son2"></div> 
+<div class="clear"></div> 
+</div> 
+
+3、万能 float 闭合 
+
+将以下代码加入Global CSS 中,给需要闭合的div加上 class=”clearfix” 即可 
+代码: 
+<style> 
+/* Clear Fix */ 
+.clearfix:after { 
+content:"."; 
+display:block; 
+height:0; 
+clear:both; 
+visibility:hidden; 
+} 
+.clearfix { 
+display:inline-block; 
+} 
+/* Hide from IE Mac \*/ 
+.clearfix {display:block;} 
+/* End hide from IE Mac */ 
+/* end of clearfix */ 
+</style> 
+
+:after（伪对象）,设置在对象后发生的内容，通常和content配合使用，IE不支持此伪对象，非Ie 浏览器支持，所以并不影响到IE/WIN浏览器。这种的最麻烦。 
+
+4、overflow:auto
+
+只要在父DIV的CSS中加上overflow:auto就搞定。 
+
+举例： 
+
+.parent{width:100px;overflow:auto} 
+.son1{float:left;width:20px;} 
+.son2{float:left;width:80px;} 
+
+<div class="parent"> 
+<div class="son1"></div> 
+<div class="son2"></div> 
+</div> 
+
+作者原话：原理是，外围元素之所以不能很好的延伸，问题出在了overflow上，因为overflow不可见（见W3C的解释）。现在只要将给外围元素添 加一个“overflow:auto”，就可以解决问题，结果是除了IE，真的可以解决。下来就要解决IE的问题了，再加上“_height:1%”，这个问题就完全解决了。 
+
+我试了一下，其实不加"_height:1%“在IE下也行，留着吧。 
+
+六、需要注意的一些兼容细节 
+
+1, FF下给 div 设置 padding 后会导致 width 和 height 增加(DIV的实际宽度=DIV宽+Padding), 但IE不会. 
+
+解决办法：给DIV设定IE、FF两个宽度，在IE的宽度前加上IE特有标记" * "号。 
+
+2, 页面居中问题. 
+
+body {TEXT-ALIGN: center;} 在IE下足够了，但FF下失效。 
+
+解决办法：加上"MARGIN-RIGHT: auto; MARGIN-LEFT: auto; " 
+
+3, 有的时候在IE6上看见一些奇怪的间隙，可我们高度明明设好了呀。 
+
+解决办法：试试在有空隙的DIV上加上"font-size:0px;" 
+
+4, 关于手形光标. cursor: pointer. 而hand 只适用于 IE. 
+
+5, 浮动IE6产生的双倍距离 
+
+#box{ float:left; 
+width:100px; 
+margin:0 0 0 100px; 
+} 
+这种情况之下IE6会产生200px的距离 
+
+解决办法：加上display:inline，使浮动忽略 
+
+这里细说一下block,inline两个元素,Block元素的特点是:总是在新行上开始,高度,宽度,行高,边距都可以控制(块元素);Inline元素的特点是:和其他元素在同一行上,…不可控制(内嵌元素); 
+#box{ display:block; //可以为内嵌元素模拟为块元素 display:inline; //实现同一行排列的的效果 
+
+6 页面的最小宽度 
+
+min-width是个非常方便的CSS命令，它可以指定元素最小也不能小于某个宽度，这样就能保证排版一直正确。但IE不认得min-这个定义，但实际上它把正常的width和height当作有min的情况来使。这样问题就大了，如果只用宽度和高度，正常的浏览器里 这两个值就不会变，如果只用min-width和min-height的话，IE下面根本等于没有设置宽度和高度。比如要设置背景图片，这个宽度是比较重 要的。 
+
+解决办法：为了让这一命令在IE上也能用，可以把一个<div> 放到 <body> 标签下，然后为div指定一个类： 
+然后CSS这样设计： 
+#container{ 
+min-width: 600px; 
+width:e-xpression(document.body.clientWidth < 600? “600px”: “auto” ); 
+} 
+第一个min-width是正常的；但第2行的width使用了Javascript，这只有IE才认得，这也会让你的HTML文档不太正规。它实际上通过Javascript的判断来实现最小宽度。 
+
+7、UL和FORM标签的padding与margin 
+
+ul标签在FF中默认是有padding值的,而在IE中只有margin默认有值。FORM标签在IE中,将会自动margin一些边距,而在FF中margin则是0； 
+
+解决办法：css中首先都使用这样的样式ul,form{margin:0;padding:0;}.
+
+8 ,DIV浮动IE文本产生3象素的bug 
+
+左边对象浮动，右边采用外补丁的左边距来定位，右边对象内的文本会离左边有3px的间距. 
+#box{ 
+float:left; 
+width:800px;} 
+#left{ 
+float:left; 
+width:50%;} 
+#right{ 
+width:50%; 
+} 
+*html #left{ 
+margin-right:-3px; 
+//这句是关键 
+} 
+HTML代码 
+<DIV id=box> 
+<DIV id=left></DIV> 
+<DIV id=right></DIV> 
+</DIV> 
+
+针对上面这段代码，下面说一下我的理解： 
+
+第一、只要right定义了width属性，在FF下绝对就会两行显示 
+第二、两个width都定义为百分比的话，就算都为100%在IE下也会一行显示。所以上面那句所谓“这句是关键”根本没用，不加也在一行，除非你width定义的是数值才用得上。 
+
+所以说上面这段代码其实用处不大，至少在FF下不行。其实只要只定义left的width就行了，right不定义width就不管在IE还是FF下都能成功，但这样的话父DIV BOX并没有真正的包含LEFT和RIGHT两子DIV,可以用我上面说的第5种办法解决。最简单的办法就是在RIGHT中加上float:left就OK了
+
+
+9,截字省略号 
+
+.hh { -o-text-overflow:ellipsis; 
+text-overflow:ellipsis; 
+white-space: 
+nowrapoverflow:hidden; 
+} 
+这个是在越出长度后会自行的截掉多出部分的文字，并以省略号结尾。技术是好技术，很多人都喜欢乱用，但注意Firefox并不支持 
+
+
+
+
+CSS技巧
+
+1.div的垂直居中问题 vertical-align:middle; 将行距增加到和整个DIV一样高 line-height:200px; 然后插入文字，就垂直居中了。缺点是要控制内容不要换行  
+
+2. margin加倍的问题   设置为float的div在ie下设置的margin会加倍。这是一个ie6都存在的bug。解决方案是在这个div里面加上 display:inline; 例如： <#div id=”imfloat”> 相应的css为 #IamFloat{ float:left; margin:5px;/*IE下理解为10px*/ display:inline;/*IE下再理解为5px*/}  
+
+3.浮动ie产生的双倍距离   #box{ float:left; width:100px; margin:0 0 0 100px; //这种情况之下IE会产生200px的距离 display:inline; //使浮动忽略} 这里细说一下block与inline两个元素：block元素的特点是,总是在新行上开始,高度,宽度,行高,边距都可以控制(块元素);Inline 元素的特点是,和其他元素在同一行上,不可控制(内嵌元素); #box{ display:block; //可以为内嵌元素模拟为块元素 display:inline; //实现同一行排列的效果 diplay:table;
+
+4 IE与宽度和高度的问题 IE 不认得min-这个定义，但实际上它把正常的width和height当作有min的情况来使。这样问题就大了，如果只用宽度和高度，正常的浏览器里这两个值就不会变，如果只用min-width和min-height的话，IE下面根本等于没有设置宽度和高度。 比如要设置背景图片，这个宽度是比较重要的。要解决这个问题，可以这样： #box{ width: 80px; height: 35px;}html>body #box{ width: auto; height: auto; min-width: 80px; min-height: 35px;}
+
+5.页面的最小宽度   min -width是个非常方便的CSS命令，它可以指定元素最小也不能小于某个宽度，这样就能保证排版一直正确。但IE不认得这个，而它实际上把width当做最小宽度来使。为了让这一命令在IE上也能用，可以把一个<div> 放到 <body> 标签下，然后为div指定一个类, 然后CSS这样设计： #container{ min-width: 600px; width:e-xpression(document.body.clientWidth < 600? "600px": "auto" );} 第一个min-width是正常的；但第2行的width使用了Javascript，这只有IE才认得，这也会让你的HTML文档不太正规。它实际上通过Javascript的判断来实现最小宽度。
+
+6.DIV浮动IE文本产生3象素的bug 左边对象浮动，右边采用外补丁的左边距来定位，右边对象内的文本会离左边有3px的间距. #box{ float:left; width:800px;} #left{ float:left; width:50%;} #right{ width:50%;} *html #left{ margin-right:-3px; //这句是关键} <div id="box"> <div id="left"></div> <div id="right"></div> </div>  
+
+7.IE捉迷藏的问题 当div应用复杂的时候每个栏中又有一些链接，DIV等这个时候容易发生捉迷藏的问题。 有些内容显示不出来，当鼠标选择这个区域是发现内容确实在页面。 解决办法：对#layout使用line-height属性或者给#layout使用固定高和宽。页面结构尽量简单。  
+
+8.float的div闭合;清除浮动;自适应高度;
+
+① 例如：<#div id=”floatA” ><#div id=”floatB” ><#div id=” NOTfloatC” >这里的NOTfloatC并不希望继续平移，而是希望往下排。(其中floatA、floatB的属性已经设置为 float:left;) 这段代码在IE中毫无问题，问题出在FF。原因是NOTfloatC并非float标签，必须将float标签闭合。在 <#div class=”floatB”> <#div class=”NOTfloatC”>之间加上 < #div class=”clear”>这个div一定要注意位置，而且必须与两个具有float属性的div同级，之间不能存在嵌套关系，否则会产生异常。并且将clear这种样式定义为为如下即可： .clear{ clear:both;}
+
+②作为外部 wrapper 的 div 不要定死高度,为了让高度能自动适应，要在wrapper里面加上overflow:hidden; 当包含float的 box的时候，高度自动适应在IE下无效，这时候应该触发IE的layout私有,属性用zoom:1;可以做到，这样就达到了兼容。 例如某一个wrapper如下定义： .colwrapper{ overflow:hidden; zoom:1; margin:5px auto;}
+
+③对于排版,我们用得最多的css描述可能就是float:left.有的时候我们需要在n 栏的float div后面做一个统一的背景,譬如: <div id=”page”> <div id=”left”></div> <div id=”center”></div> <div id=”right”></div> </div> 比如我们要将page的背景设置成蓝色,以达到所有三栏的背景颜色是蓝色的目的,但是我们会发现随着left center right的向下拉长,而 page居然保存高度不变,问题来了,原因在于page不是float属性,而我们的page由于要居中,不能设置成float,所以我们应该这样解决 <div id=”page”> <div id=”bg” style=”float:left;width:100%”> <div id=”left”></div> <div id=”center”></div> <div id=”right”></div> </div> </div> 再嵌入一个float left而宽度是100%的DIV解决之
+
+④万能float 闭合(非常重要!) 关于 clear float 的原理可参见 [How To Clear Floats Without Structural Markup],将以下代码加入Global CSS 中,给需要闭合的div加上 class="clearfix" 即可,屡试不爽. /* Clear Fix */ .clearfix:after { content:"."; display:block; height:0; clear:both; visibility:hidden; } .clearfix { display:inline-block; } /* Hide from IE Mac */ .clearfix {display:block;} /* End hide from IE Mac */ /* end of clearfix */ 或者这样设置：.hackbox{ display:table; //将对象作为块元素级的表格显示}  
+
+11.高度不适应 高度不适应是当内层对象的高度发生变化时外层高度不能自动进行调节，特别是当内层对象使用margin 或paddign 时。 例： #box {background-color:#eee; }   #box p {margin-top: 20px;margin-bottom: 20px; text-align:center; }   <div id="box">   <p>p对象中的内容</p>   </div>   解决方法：在P对象上下各加2个空的div对象CSS代码：.1{height:0px;overflow:hidden;}或者为DIV加上 border属性。
+
+12 .IE6下为什么图片下有空隙产生解决这个BUG的方法也有很多,可以是改变html的排版,或者设置img 为display:block 或者设置vertical-align 属性为 vertical-align:top | bottom |middle |text-bottom 都可以解决.
+
+13.如何对齐文本与文本输入框 加上 vertical-align:middle; <style type="text/css"> <!-- input {   width:200px;   height:30px;   border:1px solid red;   vertical-align:middle; } --> </style>
+
+14.web标准中定义id与class有什么区别吗一.web标准中是不容许重复ID的,比如 div id="aa" 不容许重复2次,而class 定义的是类,理论上可以无限重复, 这样需要多次引用的定义便可以使用他. 二.属性的优先级问题 ID 的优先级要高于class,看上面的例子三.方便JS等客户端脚本,如果在页面中要对某个对象进行脚本操作,那么可以给他定义一个ID,否则只能利用遍历页面元素加上指定特定属性来找到它,这是相对浪费时间资源,远远不如一个ID来得简单.
+
+15. LI中内容超过长度后以省略号显示的方法 此方法适用与IE与OP浏览器 <style type="text/css"> <!-- li {   width:200px;   white-space:nowrap;   text-overflow:ellipsis;   -o-text-overflow:ellipsis;   overflow: hidden;   } --> </style>
+
+16.为什么web标准中IE无法设置滚动条颜色了 解决办法是将body换成html <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> <style type="text/css"> <!-- html {   scrollbar-face-color:#f6f6f6;   scrollbar-highlight-color:#fff;   scrollbar-shadow-color:#eeeeee;   scrollbar-3dlight-color:#eeeeee;   scrollbar-arrow-color:#000;   scrollbar-track-color:#fff;   scrollbar-darkshadow-color:#fff;   } --> </style>
+
+17.为什么无法定义1px左右高度的容器 IE6下这个问题是因为默认的行高造成的,解决的方法也有很多,例如 verflow:hidden | zoom:0.08 | line-height:1px
+
+18.怎么样才能让层显示在FLASH之上呢 解决的办法是给FLASH设置透明 <param name="wmode" value="transparent" />
+
+19.怎样使一个层垂直居中于浏览器中这里我们使用百分比绝对定位,与外补丁负值的方法,负值的大小为其自身宽度高度除以二 <style type="text/css"> <!-- div {   position:absolute;   top:50%;   lef:50%;   margin:-100px 0 0 -100px;   width:200px;   height:200px;   border:1px solid red;   } --> </style>
+
+FF与IE  
+
+1. Div居中问题 div设置 margin-left, margin-right 为 auto 时已经居中，IE 不行，IE需要设定body居中，首先在父级元素定义text-algin: center;这个的意思就是在父级元素内的内容居中。
+
+2.链接(a标签)的边框与背景 a 链接加边框和背景色，需设置 display: block, 同时设置 float: left 保证不换行。参照 menubar, 给 a 和 menubar 设置高度是为了避免底边显示错位, 若不设 height, 可以在 menubar 中插入一个空格。
+
+3.超链接访问过后hover样式就不出现的问题被点击访问过的超链接样式不在具有hover和active了,很多人应该都遇到过这个问题,解决方法是改变CSS属性的排列顺序: L-V-H-A Code: <style type="text/css"> <!-- a:link {} a:visited {} a:hover {} a:active {} --> </style>
+
+4. 游标手指cursor cursor: pointer 可以同时在 IE FF 中显示游标手指状， hand 仅 IE 可以  
+
+5.UL的padding与margin ul标签在FF中默认是有padding值的,而在IE中只有margin默认有值,所以先定义 ul{margin:0;padding:0;}就能解决大部分问题
+
+6. FORM标签 这个标签在IE中,将会自动margin一些边距,而在FF中margin则是0,因此,如果想显示一致,所以最好在css中指定margin和 padding,针对上面两个问题,我的css中一般首先都使用这样的样式ul,form{margin:0;padding:0;}给定义死了,所以后面就不会为这个头疼了.  
+
+7. BOX模型解释不一致问题 在FF和IE 中的BOX模型解释不一致导致相差2px解决方法：div{margin:30px!important;margin:28px;} 注意这两个 margin的顺序一定不能写反， important这个属性IE不能识别，但别的浏览器可以识别。所以在IE下其实解释成这样： div {maring:30px;margin:28px}重复定义的话按照最后一个来执行，所以不可以只写margin:xx px!important;   #box{ width:600px; //for ie6.0- w\idth:500px; //for ff+ie6.0} #box{ width:600px!important //for ff width:600px; //for ff+ie6.0 width /**/:500px; //for ie6.0-}  
+
+8.属性选择器(这个不能算是兼容,是隐藏css的一个bug) p[id]{}div[id]{} 这个对于IE6.0和IE6.0以下的版本都隐藏,FF和OPera作用.属性选择器和子选择器还是有区别的,子选择器的范围从形式来说缩小了,属性选择器的范围比较大,如p[id]中,所有p标签中有id的都是同样式的.  
+
+9.最狠的手段 - !important; 如果实在没有办法解决一些细节问题,可以用这个方法.FF对于”!important”会自动优先解析,然而IE则会忽略.如下 .tabd1{ background:url(/res/images/up/tab1.gif) no-repeat 0px 0px !important; /*Style for FF*/ background:url(/res/images/up/tab1.gif) no-repeat 1px 0px; /* Style for IE */} 值得注意的是，一定要将xxxx !important 这句放置在另一句之上，上面已经提过
